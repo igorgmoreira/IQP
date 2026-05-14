@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal do Prestador - IQP</title>
+    <title>Índice de Qualidade do Prestador - Cobli</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
+        /* Identidade Visual Cobli */
         :root {
             --cobli-primary-dark: #07074E;
             --cobli-primary-light: #001BB8;
@@ -28,9 +32,13 @@
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-md w-96 border-t-4 border-cobli-dark">
-            <div class="flex justify-center mb-6">
+            <div class="flex flex-col items-center justify-center mb-6 gap-3">
                 <img src="logotipo_slogan_indigo.png" alt="Cobli Logo" class="h-12">
+                <h2 class="text-lg font-semibold text-cobli-dark text-center uppercase tracking-tight">
+                    Índice de Qualidade do Prestador
+                </h2>
             </div>
+            
             <form id="login-form" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">E-mail</label>
@@ -51,43 +59,42 @@
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <img src="logotipo_slogan_branco.png" alt="Cobli Logo" class="h-10">
                 <div class="flex items-center gap-6">
-                    <span id="welcome-msg" class="text-sm font-medium"></span>
-                    <button id="logout-btn" class="text-cobli-red text-sm font-semibold hover:underline">Sair</button>
+                    <span id="welcome-msg" class="text-sm font-medium opacity-90"></span>
+                    <button id="logout-btn" class="text-cobli-red text-sm font-bold hover:underline">Sair</button>
                 </div>
             </div>
         </header>
 
         <main class="max-w-7xl mx-auto p-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <h1 class="text-3xl font-bold text-cobli-dark">Desempenho IQP</h1>
+                <h1 class="text-2xl font-bold text-cobli-dark uppercase">Índice de Qualidade do Prestador</h1>
                 
                 <div class="flex flex-wrap items-center gap-4">
-                    
                     <div id="admin-controls" class="hidden flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-cobli-dark">
                         <label class="text-sm font-semibold text-cobli-dark">Filtrar Prestador:</label>
-                        <select id="admin-filter" class="outline-none border-b-2 border-cobli-dark bg-transparent font-bold">
+                        <select id="admin-filter" class="outline-none border-b-2 border-cobli-dark bg-transparent font-bold text-cobli-dark cursor-pointer">
                             <option value="">Todos os Prestadores</option>
-                            </select>
+                        </select>
                     </div>
 
                     <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
                         <label class="text-sm font-semibold text-gray-600">Mês de Referência:</label>
-                        <input type="month" id="date-filter" class="outline-none border-b-2 border-cobli-light bg-transparent text-cobli-light font-bold">
+                        <input type="month" id="date-filter" class="outline-none border-b-2 border-cobli-light bg-transparent text-cobli-light font-bold cursor-pointer">
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-green">
-                    <h3 class="text-gray-500 text-xs font-medium uppercase tracking-wider">Score Médio (IQP)</h3>
+                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Score Médio (IQP)</h3>
                     <p id="metric-score" class="text-4xl font-bold text-cobli-green mt-2">--</p>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-red">
-                    <h3 class="text-gray-500 text-xs font-medium uppercase tracking-wider">Total de Ordens</h3>
+                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total de Ordens</h3>
                     <p id="metric-os" class="text-4xl font-bold text-cobli-red mt-2">--</p>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-light">
-                    <h3 class="text-gray-500 text-xs font-medium uppercase tracking-wider">Qtd. Dispositivos</h3>
+                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Qtd. Dispositivos</h3>
                     <p id="metric-devices" class="text-4xl font-bold text-cobli-light mt-2">--</p>
                 </div>
             </div>
@@ -96,11 +103,10 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-cobli-dark uppercase tracking-wider">Prestador</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-cobli-dark uppercase tracking-wider">OS</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-cobli-dark uppercase tracking-wider">Data do Serviço</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-cobli-dark uppercase tracking-wider">Dispositivos</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-cobli-dark uppercase tracking-wider">Nota Individual</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase tracking-wider">Ordem de Serviço (OS)</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase tracking-wider">Data do Serviço</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-cobli-dark uppercase tracking-wider">Qtd. Dispositivos</th>
+                            <th class="px-6 py-3 text-right text-xs font-bold text-cobli-dark uppercase tracking-wider">Nota Individual</th>
                         </tr>
                     </thead>
                     <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
@@ -116,14 +122,13 @@
         const dateFilter = document.getElementById('date-filter');
         const adminFilter = document.getElementById('admin-filter');
 
-        // Configura o mês atual
         function setInitialDate() {
             const now = new Date();
             dateFilter.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         }
         setInitialDate();
 
-        // LOGAR
+        // --- LOGIN ---
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const { data: user, error } = await clienteSupabase
@@ -137,43 +142,30 @@
                 document.getElementById('login-error').textContent = "E-mail ou senha incorretos.";
                 document.getElementById('login-error').classList.remove('hidden');
             } else {
-                // Salva o nome e a permissão (garantindo que fique minúsculo para checar fácil)
                 const permissao = (user[CONFIG.COLUNA_PERMISSAO] || 'prestador').toLowerCase();
                 localStorage.setItem('prestador_nome', user[CONFIG.COLUNA_NOME_PRESTADOR]);
                 localStorage.setItem('prestador_perm', permissao);
-                
                 initDashboard(user[CONFIG.COLUNA_NOME_PRESTADOR], permissao);
             }
         });
 
-        // INICIAR DASHBOARD
+        // --- DASHBOARD ---
         function initDashboard(nome, permissao) {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
-            
-            // Texto de boas vindas
             document.getElementById('welcome-msg').textContent = permissao === 'admin' ? `Admin: ${nome}` : `Olá, ${nome}`;
             
-            // Libera ferramentas de Admin
             if (permissao === 'admin') {
                 document.getElementById('admin-controls').classList.remove('hidden');
                 carregarListaPrestadores();
             }
-
             loadData();
         }
 
-        // CARREGA A LISTA DE PRESTADORES NO DROPDOWN DO ADMIN
         async function carregarListaPrestadores() {
-            // Busca apenas os nomes cadastrados na tabela de usuários para o admin não precisar digitar
-            const { data } = await clienteSupabase
-                .from(CONFIG.TABELA_USUARIOS)
-                .select(CONFIG.COLUNA_NOME_PRESTADOR);
-            
+            const { data } = await clienteSupabase.from(CONFIG.TABELA_USUARIOS).select(CONFIG.COLUNA_NOME_PRESTADOR);
             if (data) {
-                // Remove nomes vazios e duplicados (ex: se tiver 2 admins, tira as cópias)
                 const nomes = [...new Set(data.map(u => u[CONFIG.COLUNA_NOME_PRESTADOR]).filter(Boolean))];
-                
                 nomes.forEach(nomeLista => {
                     const option = document.createElement('option');
                     option.value = nomeLista;
@@ -183,11 +175,9 @@
             }
         }
 
-        // Ouve mudanças nos filtros (Mês e Prestador Admin)
         dateFilter.addEventListener('change', loadData);
         adminFilter.addEventListener('change', loadData);
 
-        // BUSCA E FILTRA DADOS
         async function loadData() {
             const nome = localStorage.getItem('prestador_nome');
             const perm = localStorage.getItem('prestador_perm');
@@ -195,33 +185,23 @@
 
             const [year, month] = dateFilter.value.split('-');
             
-            // 1. Monta a base da consulta (apenas pela data)
-            let query = clienteSupabase
-                .from('iqp')
-                .select('*')
+            let query = clienteSupabase.from('iqp').select('*')
                 .gte('data_servico', `${year}-${month}-01`)
                 .lte('data_servico', `${year}-${month}-31`)
                 .order('data_servico', { ascending: false });
 
-            // 2. Aplica as regras de Perfil (RBAC)
             if (perm === 'admin') {
-                // Se for admin, checa se ele escolheu um prestador específico no filtro
                 const prestadorEscolhido = adminFilter.value;
-                if (prestadorEscolhido !== "") {
-                    query = query.eq('prestador', prestadorEscolhido);
-                }
-                // Se ele deixou em "Todos os Prestadores" (""), não aplica o .eq() e traz tudo!
+                if (prestadorEscolhido !== "") query = query.eq('prestador', prestadorEscolhido);
             } else {
-                // Se for um prestador comum, trava o filtro no nome dele
                 query = query.eq('prestador', nome);
             }
 
-            // Executa a busca no banco
             const { data, error } = await query;
             renderDashboard(data || []);
         }
 
-        // RENDERIZAR TABELA
+        // --- RENDERIZAR TABELA ---
         function renderDashboard(dados) {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
@@ -245,7 +225,6 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
                 tr.innerHTML = `
-                    <td class="px-6 py-4 text-sm font-medium text-gray-800">${os.prestador}</td>
                     <td class="px-6 py-4 text-sm font-semibold text-cobli-dark">${os.ordem_de_servico}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">${new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                     <td class="px-6 py-4 text-sm text-center text-gray-600">${os.qtd_dispositivos}</td>
@@ -259,13 +238,11 @@
             document.getElementById('metric-devices').textContent = totalDispositivos;
         }
 
-        // SAIR
         document.getElementById('logout-btn').addEventListener('click', () => {
             localStorage.clear();
             location.reload();
         });
 
-        // CHECAR SESSÃO
         window.onload = () => {
             const salvoNome = localStorage.getItem('prestador_nome');
             const salvoPerm = localStorage.getItem('prestador_perm');
