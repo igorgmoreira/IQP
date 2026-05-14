@@ -78,7 +78,10 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-green">
                     <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Score Médio (IQP)</h3>
-                    <p id="metric-score" class="text-4xl font-bold text-cobli-green mt-2">--</p>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <p id="metric-score" class="text-4xl font-bold text-cobli-green">--</p>
+                        <span id="medal-display" class="text-sm font-bold px-2 py-0.5 rounded hidden"></span>
+                    </div>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-red">
                     <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total de Ordens</h3>
@@ -105,6 +108,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">OS</th>
+                            <th id="th-prestador" class="hidden px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Prestador</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Data do Serviço</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Status</th>
                             <th class="px-6 py-3 text-center text-xs font-bold text-cobli-dark uppercase">Dispositivos</th>
@@ -184,6 +188,7 @@
             
             if (profile.permissao === 'admin') {
                 document.getElementById('admin-controls').classList.remove('hidden');
+                document.getElementById('th-prestador').classList.remove('hidden'); // Exibe a coluna Prestador para o Admin
                 carregarListaPrestadores();
             }
             loadData();
@@ -212,7 +217,7 @@
         searchOsInput.addEventListener('input', aplicarFiltrosTabela);
         searchStatusSelect.addEventListener('change', aplicarFiltrosTabela);
 
-        // --- BUSCA NO BANCO (AGORA PROTEGIDA PELO RLS) ---
+        // --- BUSCA NO BANCO ---
         async function loadData() {
             if (!currentUserProfile) return;
 
@@ -222,14 +227,11 @@
             const anoDoProximoMes = month === 12 ? year + 1 : year;
             const limiteSuperior = `${anoDoProximoMes}-${String(proximoMes).padStart(2, '0')}-01`;
             
-            // A MAGICA ACONTECE AQUI: Não precisamos mais do .eq('prestador', nome) no código!
-            // O banco de dados (RLS) já sabe quem é o usuário e só devolve os dados permitidos.
             let query = clienteSupabase.from('iqp').select('*')
                 .gte('data_servico', primeiroDia)
                 .lt('data_servico', limiteSuperior)
                 .order('data_servico', { ascending: false });
 
-            // Só o admin precisa aplicar um filtro adicional se quiser ver um prestador específico
             if (currentUserProfile.permissao === 'admin') {
                 const prestadorEscolhido = adminFilter.value;
                 if (prestadorEscolhido !== "") query = query.eq('prestador', prestadorEscolhido);
@@ -273,27 +275,35 @@
         function renderDashboard(dados) {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
+            const medalDisplay = document.getElementById('medal-display');
             
+            // TRAVA CONTRA ZERO (NaN)
             if (dados.length === 0) {
                 document.getElementById('no-data-msg').classList.remove('hidden');
                 document.getElementById('metric-score').textContent = "0%";
                 document.getElementById('metric-os').textContent = "0";
                 document.getElementById('metric-devices').textContent = "0";
+                medalDisplay.classList.add('hidden'); // Esconde a medalha se não houver OS
                 return;
             }
 
             document.getElementById('no-data-msg').classList.add('hidden');
             let somaNotas = 0, totalDispositivos = 0;
+            const isAdmin = currentUserProfile && currentUserProfile.permissao === 'admin';
 
             dados.forEach(os => {
                 const nota = (parseFloat(os.score) || 0) * 100;
                 somaNotas += nota;
                 totalDispositivos += (parseInt(os.qtd_dispositivos) || 0);
 
+                // Se for Admin, criamos o TD com o nome do prestador. Se não, deixamos vazio.
+                const tdPrestador = isAdmin ? `<td class="px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate" title="${os.prestador || '-'}">${os.prestador || '-'}</td>` : '';
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
                 tr.innerHTML = `
                     <td class="px-6 py-4 text-sm font-semibold text-cobli-dark">${os.ordem_de_servico}</td>
+                    ${tdPrestador}
                     <td class="px-6 py-4 text-sm text-gray-600">${new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                     <td class="px-6 py-4 text-sm text-gray-600 capitalize">${os.status || '-'}</td>
                     <td class="px-6 py-4 text-sm text-center text-gray-600">${os.qtd_dispositivos}</td>
@@ -302,9 +312,26 @@
                 tableBody.appendChild(tr);
             });
 
-            document.getElementById('metric-score').textContent = `${(somaNotas / dados.length).toFixed(0)}%`;
+            const media = Math.round(somaNotas / dados.length);
+            document.getElementById('metric-score').textContent = `${media}%`;
             document.getElementById('metric-os').textContent = dados.length;
             document.getElementById('metric-devices').textContent = totalDispositivos;
+
+            // --- Lógica das Medalhas ---
+            medalDisplay.classList.remove('hidden');
+            if (media >= 95) {
+                medalDisplay.textContent = "💎 Diamante";
+                medalDisplay.className = "text-sm font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700";
+            } else if (media >= 85) {
+                medalDisplay.textContent = "🥇 Ouro";
+                medalDisplay.className = "text-sm font-bold px-2 py-0.5 rounded bg-yellow-100 text-yellow-700";
+            } else if (media >= 60) {
+                medalDisplay.textContent = "🥈 Prata";
+                medalDisplay.className = "text-sm font-bold px-2 py-0.5 rounded bg-gray-200 text-gray-700";
+            } else {
+                medalDisplay.textContent = "🥉 Bronze";
+                medalDisplay.className = "text-sm font-bold px-2 py-0.5 rounded bg-orange-100 text-orange-700";
+            }
         }
 
         // --- LOGOUT OFICIAL DO SUPABASE ---
