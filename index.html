@@ -188,7 +188,7 @@
             
             if (profile.permissao === 'admin') {
                 document.getElementById('admin-controls').classList.remove('hidden');
-                document.getElementById('th-prestador').classList.remove('hidden'); // Exibe a coluna Prestador para o Admin
+                document.getElementById('th-prestador').classList.remove('hidden'); // Exibe a coluna para Admin
                 carregarListaPrestadores();
             }
             loadData();
@@ -232,9 +232,16 @@
                 .lt('data_servico', limiteSuperior)
                 .order('data_servico', { ascending: false });
 
+            // CORREÇÃO DA TRAVA DO PRESTADOR AQUI!
             if (currentUserProfile.permissao === 'admin') {
                 const prestadorEscolhido = adminFilter.value;
-                if (prestadorEscolhido !== "") query = query.eq('prestador', prestadorEscolhido);
+                if (prestadorEscolhido !== "") {
+                    // Nota: se o nome da sua coluna no banco for 'nome_prestador', altere 'prestador' para 'nome_prestador' nas duas linhas abaixo.
+                    query = query.eq('prestador', prestadorEscolhido); 
+                }
+            } else {
+                // Se for prestador, força trazer APENAS os dados dele
+                query = query.eq('prestador', currentUserProfile.nome_prestador); 
             }
 
             const { data, error } = await query;
@@ -277,7 +284,7 @@
             tableBody.innerHTML = '';
             const medalDisplay = document.getElementById('medal-display');
             
-            // TRAVA CONTRA ZERO (NaN)
+            // Trava contra valores vazios (NaN)
             if (dados.length === 0) {
                 document.getElementById('no-data-msg').classList.remove('hidden');
                 document.getElementById('metric-score').textContent = "0%";
@@ -296,8 +303,11 @@
                 somaNotas += nota;
                 totalDispositivos += (parseInt(os.qtd_dispositivos) || 0);
 
-                // Se for Admin, criamos o TD com o nome do prestador. Se não, deixamos vazio.
-                const tdPrestador = isAdmin ? `<td class="px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate" title="${os.prestador || '-'}">${os.prestador || '-'}</td>` : '';
+                // Pegando o nome do prestador (cobre a chance de a coluna se chamar 'nome_prestador' ou 'prestador')
+                const nomeDoPrestador = os.prestador || os.nome_prestador || '-';
+
+                // Se for Admin, mostra o TD. Se for prestador comum, deixa vazio
+                const tdPrestador = isAdmin ? `<td class="px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate" title="${nomeDoPrestador}">${nomeDoPrestador}</td>` : '';
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
