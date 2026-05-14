@@ -27,11 +27,11 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-md w-96 border-t-4 border-cobli-dark">
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-6 md:p-8 rounded-lg shadow-md w-full max-w-md border-t-4 border-cobli-dark">
             <div class="flex flex-col items-center justify-center mb-8 gap-5 mt-2">
-                <img src="logotipo_slogan_indigo.png" alt="Cobli Logo" class="h-12">
-                <h2 class="text-lg font-semibold text-cobli-dark text-center tracking-tight">Índice de Qualidade do Prestador</h2>
+                <img src="logotipo_slogan_indigo.png" alt="Cobli Logo" class="h-10 md:h-12">
+                <h2 class="text-base md:text-lg font-semibold text-cobli-dark text-center tracking-tight">Índice de Qualidade do Prestador</h2>
             </div>
             
             <form id="login-form" class="space-y-4">
@@ -52,76 +52,79 @@
     <div id="dashboard-screen" class="hidden min-h-screen">
         <header class="bg-cobli-dark text-white p-4">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <img src="logotipo_slogan_branco.png" alt="Cobli Logo" class="h-10">
-                <div class="flex items-center gap-6">
-                    <span id="welcome-msg" class="text-sm font-medium opacity-90"></span>
+                <img src="logotipo_slogan_branco.png" alt="Cobli Logo" class="h-8 md:h-10">
+                <div class="flex items-center gap-4 md:gap-6">
+                    <span id="welcome-msg" class="text-xs md:text-sm font-medium opacity-90 truncate max-w-[150px] md:max-w-xs"></span>
                     <button id="logout-btn" class="text-cobli-red text-sm font-bold hover:underline">Sair</button>
                 </div>
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto p-8">
+        <main class="max-w-7xl mx-auto p-4 md:p-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 
-                <h1 class="text-2xl font-bold text-cobli-dark">Índice de Qualidade do Prestador</h1>
+                <div class="flex items-center gap-3">
+                    <img src="logo-cobli_reduzido-primary copy.png" alt="Logo Cobli Reduzido" class="h-8 md:h-10 hidden sm:block">
+                    <h1 class="text-xl md:text-2xl font-bold text-cobli-dark">Índice de Qualidade do Prestador</h1>
+                </div>
                 
-                <div class="flex flex-wrap items-center gap-4">
-                    <div id="admin-controls" class="hidden flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-cobli-dark">
-                        <label class="text-sm font-semibold text-cobli-dark">Filtrar Prestador:</label>
-                        <select id="admin-filter" class="outline-none border-b-2 border-cobli-dark bg-transparent font-bold text-cobli-dark cursor-pointer">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
+                    <div id="admin-controls" class="hidden flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 bg-white p-3 rounded-lg shadow-sm border border-cobli-dark w-full sm:w-auto">
+                        <label class="text-xs md:text-sm font-semibold text-cobli-dark">Filtrar Prestador:</label>
+                        <select id="admin-filter" class="outline-none border-b-2 border-cobli-dark bg-transparent font-bold text-cobli-dark cursor-pointer w-full sm:w-auto truncate">
                             <option value="">Todos os Prestadores</option>
                         </select>
                     </div>
-                    <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                        <label class="text-sm font-semibold text-gray-600">Mês de Referência:</label>
-                        <input type="month" id="date-filter" class="outline-none border-b-2 border-cobli-light bg-transparent text-cobli-light font-bold cursor-pointer">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-200 w-full sm:w-auto">
+                        <label class="text-xs md:text-sm font-semibold text-gray-600">Mês de Referência:</label>
+                        <input type="month" id="date-filter" class="outline-none border-b-2 border-cobli-light bg-transparent text-cobli-light font-bold cursor-pointer w-full sm:w-auto">
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-green">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Score Médio (IQP)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+                <div class="bg-white p-5 md:p-6 rounded-lg shadow border-l-4 border-cobli-green">
+                    <h3 class="text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider">Score Médio (IQP)</h3>
                     <div class="flex items-baseline gap-2 mt-2">
-                        <p id="metric-score" class="text-4xl font-bold text-cobli-green">--</p>
-                        <span id="medal-display" class="text-sm font-bold px-2 py-0.5 rounded hidden"></span>
+                        <p id="metric-score" class="text-3xl md:text-4xl font-bold text-cobli-green">--</p>
+                        <span id="medal-display" class="text-xs md:text-sm font-bold px-2 py-0.5 rounded hidden"></span>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-red">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total de Ordens</h3>
-                    <p id="metric-os" class="text-4xl font-bold text-cobli-red mt-2">--</p>
+                <div class="bg-white p-5 md:p-6 rounded-lg shadow border-l-4 border-cobli-red">
+                    <h3 class="text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider">Total de Ordens</h3>
+                    <p id="metric-os" class="text-3xl md:text-4xl font-bold text-cobli-red mt-2">--</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-light">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Qtd. Dispositivos</h3>
-                    <p id="metric-devices" class="text-4xl font-bold text-cobli-light mt-2">--</p>
+                <div class="bg-white p-5 md:p-6 rounded-lg shadow border-l-4 border-cobli-light">
+                    <h3 class="text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider">Qtd. Dispositivos</h3>
+                    <p id="metric-devices" class="text-3xl md:text-4xl font-bold text-cobli-light mt-2">--</p>
                 </div>
             </div>
 
-            <div class="bg-white p-4 rounded-t-lg border-b border-gray-200 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
+            <div class="bg-white p-4 rounded-t-lg border-b border-gray-200 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between shadow-sm">
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Histórico de Ordens</h3>
-                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                    <input type="text" id="search-os" placeholder="Buscar por OS..." class="flex-1 md:w-64 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light">
-                    <select id="search-status" class="flex-1 md:w-48 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light capitalize">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                    <input type="text" id="search-os" placeholder="Buscar por OS..." class="w-full md:w-64 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light">
+                    <select id="search-status" class="w-full md:w-48 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light capitalize">
                         <option value="">Todos os Status</option>
                     </select>
                 </div>
             </div>
 
-            <div class="bg-white rounded-b-lg shadow border border-gray-200 overflow-hidden border-t-0">
+            <div class="bg-white rounded-b-lg shadow border border-gray-200 overflow-x-auto border-t-0">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">OS</th>
-                            <th id="th-prestador" class="hidden px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Prestador</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Data do Serviço</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Status</th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-cobli-dark uppercase">Dispositivos</th>
-                            <th class="px-6 py-3 text-right text-xs font-bold text-cobli-dark uppercase">Score</th>
+                            <th class="px-4 md:px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase whitespace-nowrap">OS</th>
+                            <th id="th-prestador" class="hidden px-4 md:px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase whitespace-nowrap">Prestador</th>
+                            <th class="px-4 md:px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase whitespace-nowrap">Data do Serviço</th>
+                            <th class="px-4 md:px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase whitespace-nowrap">Status</th>
+                            <th class="px-4 md:px-6 py-3 text-center text-xs font-bold text-cobli-dark uppercase whitespace-nowrap">Dispositivos</th>
+                            <th class="px-4 md:px-6 py-3 text-right text-xs font-bold text-cobli-dark uppercase whitespace-nowrap">Score</th>
                         </tr>
                     </thead>
                     <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
                 </table>
-                <div id="no-data-msg" class="p-16 text-center text-gray-400 hidden">Nenhum dado encontrado para este período ou filtros.</div>
+                <div id="no-data-msg" class="p-8 md:p-16 text-center text-gray-400 hidden">Nenhum dado encontrado para este período ou filtros.</div>
             </div>
         </main>
     </div>
@@ -143,7 +146,6 @@
         }
         setInitialDate();
 
-        // --- VERIFICAÇÃO DE SESSÃO AUTOMÁTICA AO CARREGAR A PÁGINA ---
         window.onload = async () => {
             const { data: { session } } = await clienteSupabase.auth.getSession();
             if (session) {
@@ -151,7 +153,6 @@
             }
         };
 
-        // --- NOVO LOGIN USANDO SUPABASE AUTH ---
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btn-entrar');
@@ -171,7 +172,6 @@
             }
         });
 
-        // --- CARREGAR O PERFIL EXTRA DO USUÁRIO ---
         async function carregarPerfilEIniciar(userId) {
             const { data: profile, error } = await clienteSupabase
                 .from('profiles')
@@ -192,7 +192,7 @@
             
             if (profile.permissao === 'admin') {
                 document.getElementById('admin-controls').classList.remove('hidden');
-                document.getElementById('th-prestador').classList.remove('hidden'); // Exibe a coluna para Admin
+                document.getElementById('th-prestador').classList.remove('hidden');
                 carregarListaPrestadores();
             }
             loadData();
@@ -221,7 +221,6 @@
         searchOsInput.addEventListener('input', aplicarFiltrosTabela);
         searchStatusSelect.addEventListener('change', aplicarFiltrosTabela);
 
-        // --- BUSCA NO BANCO ---
         async function loadData() {
             if (!currentUserProfile) return;
 
@@ -236,7 +235,6 @@
                 .lt('data_servico', limiteSuperior)
                 .order('data_servico', { ascending: false });
 
-            // TRAVA DO PRESTADOR
             if (currentUserProfile.permissao === 'admin') {
                 const prestadorEscolhido = adminFilter.value;
                 if (prestadorEscolhido !== "") {
@@ -286,13 +284,12 @@
             tableBody.innerHTML = '';
             const medalDisplay = document.getElementById('medal-display');
             
-            // Trava contra valores vazios (NaN)
             if (dados.length === 0) {
                 document.getElementById('no-data-msg').classList.remove('hidden');
                 document.getElementById('metric-score').textContent = "0%";
                 document.getElementById('metric-os').textContent = "0";
                 document.getElementById('metric-devices').textContent = "0";
-                medalDisplay.classList.add('hidden'); // Esconde a medalha se não houver OS
+                medalDisplay.classList.add('hidden');
                 return;
             }
 
@@ -306,17 +303,18 @@
                 totalDispositivos += (parseInt(os.qtd_dispositivos) || 0);
 
                 const nomeDoPrestador = os.prestador || os.nome_prestador || '-';
-                const tdPrestador = isAdmin ? `<td class="px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate" title="${nomeDoPrestador}">${nomeDoPrestador}</td>` : '';
+                // Adicionado 'whitespace-nowrap' no TD para mobile também
+                const tdPrestador = isAdmin ? `<td class="px-4 md:px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate whitespace-nowrap" title="${nomeDoPrestador}">${nomeDoPrestador}</td>` : '';
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
                 tr.innerHTML = `
-                    <td class="px-6 py-4 text-sm font-semibold text-cobli-dark">${os.ordem_de_servico}</td>
+                    <td class="px-4 md:px-6 py-4 text-sm font-semibold text-cobli-dark whitespace-nowrap">${os.ordem_de_servico}</td>
                     ${tdPrestador}
-                    <td class="px-6 py-4 text-sm text-gray-600">${new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600 capitalize">${os.status || '-'}</td>
-                    <td class="px-6 py-4 text-sm text-center text-gray-600">${os.qtd_dispositivos}</td>
-                    <td class="px-6 py-4 text-sm text-right font-bold ${nota >= 80 ? 'text-cobli-green' : 'text-cobli-red'}">${nota.toFixed(0)}%</td>
+                    <td class="px-4 md:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">${new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
+                    <td class="px-4 md:px-6 py-4 text-sm text-gray-600 capitalize whitespace-nowrap">${os.status || '-'}</td>
+                    <td class="px-4 md:px-6 py-4 text-sm text-center text-gray-600 whitespace-nowrap">${os.qtd_dispositivos}</td>
+                    <td class="px-4 md:px-6 py-4 text-sm text-right font-bold whitespace-nowrap ${nota >= 80 ? 'text-cobli-green' : 'text-cobli-red'}">${nota.toFixed(0)}%</td>
                 `;
                 tableBody.appendChild(tr);
             });
@@ -326,24 +324,22 @@
             document.getElementById('metric-os').textContent = dados.length;
             document.getElementById('metric-devices').textContent = totalDispositivos;
 
-            // --- Lógica das Medalhas ---
             medalDisplay.classList.remove('hidden');
             if (media >= 95) {
                 medalDisplay.textContent = "💎 Diamante";
-                medalDisplay.className = "text-sm font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700";
+                medalDisplay.className = "text-xs md:text-sm font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700";
             } else if (media >= 85) {
                 medalDisplay.textContent = "🥇 Ouro";
-                medalDisplay.className = "text-sm font-bold px-2 py-0.5 rounded bg-yellow-100 text-yellow-700";
+                medalDisplay.className = "text-xs md:text-sm font-bold px-2 py-0.5 rounded bg-yellow-100 text-yellow-700";
             } else if (media >= 60) {
                 medalDisplay.textContent = "🥈 Prata";
-                medalDisplay.className = "text-sm font-bold px-2 py-0.5 rounded bg-gray-200 text-gray-700";
+                medalDisplay.className = "text-xs md:text-sm font-bold px-2 py-0.5 rounded bg-gray-200 text-gray-700";
             } else {
                 medalDisplay.textContent = "🥉 Bronze";
-                medalDisplay.className = "text-sm font-bold px-2 py-0.5 rounded bg-orange-100 text-orange-700";
+                medalDisplay.className = "text-xs md:text-sm font-bold px-2 py-0.5 rounded bg-orange-100 text-orange-700";
             }
         }
 
-        // --- LOGOUT OFICIAL DO SUPABASE ---
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await clienteSupabase.auth.signOut();
             location.reload();
