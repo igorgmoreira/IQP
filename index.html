@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal do Prestador - IQP</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        /* Paleta Cobli */
         :root {
             --cobli-primary-dark: #07074E;
             --cobli-primary-light: #001BB8;
@@ -63,11 +59,21 @@
 
         <main class="max-w-7xl mx-auto p-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <h1 class="text-3xl font-bold text-cobli-dark">Índice de Qualidade do Prestador</h1>
+                <h1 class="text-3xl font-bold text-cobli-dark">Desempenho IQP</h1>
                 
-                <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                    <label class="text-sm font-semibold text-gray-600">Mês de Referência:</label>
-                    <input type="month" id="date-filter" class="outline-none border-b-2 border-cobli-light bg-transparent text-cobli-light font-bold">
+                <div class="flex flex-wrap items-center gap-4">
+                    
+                    <div id="admin-controls" class="hidden flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-cobli-dark">
+                        <label class="text-sm font-semibold text-cobli-dark">Filtrar Prestador:</label>
+                        <select id="admin-filter" class="outline-none border-b-2 border-cobli-dark bg-transparent font-bold">
+                            <option value="">Todos os Prestadores</option>
+                            </select>
+                    </div>
+
+                    <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+                        <label class="text-sm font-semibold text-gray-600">Mês de Referência:</label>
+                        <input type="month" id="date-filter" class="outline-none border-b-2 border-cobli-light bg-transparent text-cobli-light font-bold">
+                    </div>
                 </div>
             </div>
 
@@ -90,6 +96,7 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-cobli-dark uppercase tracking-wider">Prestador</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-cobli-dark uppercase tracking-wider">OS</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-cobli-dark uppercase tracking-wider">Data do Serviço</th>
                             <th class="px-6 py-3 text-center text-xs font-semibold text-cobli-dark uppercase tracking-wider">Dispositivos</th>
@@ -107,13 +114,16 @@
     <script>
         const clienteSupabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
         const dateFilter = document.getElementById('date-filter');
+        const adminFilter = document.getElementById('admin-filter');
 
+        // Configura o mês atual
         function setInitialDate() {
             const now = new Date();
             dateFilter.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         }
         setInitialDate();
 
+        // LOGAR
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const { data: user, error } = await clienteSupabase
@@ -127,36 +137,91 @@
                 document.getElementById('login-error').textContent = "E-mail ou senha incorretos.";
                 document.getElementById('login-error').classList.remove('hidden');
             } else {
+                // Salva o nome e a permissão (garantindo que fique minúsculo para checar fácil)
+                const permissao = (user[CONFIG.COLUNA_PERMISSAO] || 'prestador').toLowerCase();
                 localStorage.setItem('prestador_nome', user[CONFIG.COLUNA_NOME_PRESTADOR]);
-                initDashboard(user[CONFIG.COLUNA_NOME_PRESTADOR]);
+                localStorage.setItem('prestador_perm', permissao);
+                
+                initDashboard(user[CONFIG.COLUNA_NOME_PRESTADOR], permissao);
             }
         });
 
-        function initDashboard(nome) {
+        // INICIAR DASHBOARD
+        function initDashboard(nome, permissao) {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
-            document.getElementById('welcome-msg').textContent = `Olá, ${nome}`;
+            
+            // Texto de boas vindas
+            document.getElementById('welcome-msg').textContent = permissao === 'admin' ? `Admin: ${nome}` : `Olá, ${nome}`;
+            
+            // Libera ferramentas de Admin
+            if (permissao === 'admin') {
+                document.getElementById('admin-controls').classList.remove('hidden');
+                carregarListaPrestadores();
+            }
+
             loadData();
         }
 
-        dateFilter.addEventListener('change', loadData);
+        // CARREGA A LISTA DE PRESTADORES NO DROPDOWN DO ADMIN
+        async function carregarListaPrestadores() {
+            // Busca apenas os nomes cadastrados na tabela de usuários para o admin não precisar digitar
+            const { data } = await clienteSupabase
+                .from(CONFIG.TABELA_USUARIOS)
+                .select(CONFIG.COLUNA_NOME_PRESTADOR);
+            
+            if (data) {
+                // Remove nomes vazios e duplicados (ex: se tiver 2 admins, tira as cópias)
+                const nomes = [...new Set(data.map(u => u[CONFIG.COLUNA_NOME_PRESTADOR]).filter(Boolean))];
+                
+                nomes.forEach(nomeLista => {
+                    const option = document.createElement('option');
+                    option.value = nomeLista;
+                    option.textContent = nomeLista;
+                    adminFilter.appendChild(option);
+                });
+            }
+        }
 
+        // Ouve mudanças nos filtros (Mês e Prestador Admin)
+        dateFilter.addEventListener('change', loadData);
+        adminFilter.addEventListener('change', loadData);
+
+        // BUSCA E FILTRA DADOS
         async function loadData() {
             const nome = localStorage.getItem('prestador_nome');
+            const perm = localStorage.getItem('prestador_perm');
             if (!nome) return;
 
             const [year, month] = dateFilter.value.split('-');
-            const { data, error } = await clienteSupabase
+            
+            // 1. Monta a base da consulta (apenas pela data)
+            let query = clienteSupabase
                 .from('iqp')
                 .select('*')
-                .eq('prestador', nome)
                 .gte('data_servico', `${year}-${month}-01`)
                 .lte('data_servico', `${year}-${month}-31`)
                 .order('data_servico', { ascending: false });
 
+            // 2. Aplica as regras de Perfil (RBAC)
+            if (perm === 'admin') {
+                // Se for admin, checa se ele escolheu um prestador específico no filtro
+                const prestadorEscolhido = adminFilter.value;
+                if (prestadorEscolhido !== "") {
+                    query = query.eq('prestador', prestadorEscolhido);
+                }
+                // Se ele deixou em "Todos os Prestadores" (""), não aplica o .eq() e traz tudo!
+            } else {
+                // Se for um prestador comum, trava o filtro no nome dele
+                query = query.eq('prestador', nome);
+            }
+
+            // Executa a busca no banco
+            const { data, error } = await query;
             renderDashboard(data || []);
         }
 
+        // RENDERIZAR TABELA
         function renderDashboard(dados) {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
@@ -173,12 +238,14 @@
             let somaNotas = 0, totalDispositivos = 0;
 
             dados.forEach(os => {
-                const nota = parseFloat(os.score * 100) || 0;
+                const nota = (parseFloat(os.score) || 0) * 100;
                 somaNotas += nota;
                 totalDispositivos += (parseInt(os.qtd_dispositivos) || 0);
 
                 const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
                 tr.innerHTML = `
+                    <td class="px-6 py-4 text-sm font-medium text-gray-800">${os.prestador}</td>
                     <td class="px-6 py-4 text-sm font-semibold text-cobli-dark">${os.ordem_de_servico}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">${new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                     <td class="px-6 py-4 text-sm text-center text-gray-600">${os.qtd_dispositivos}</td>
@@ -192,14 +259,17 @@
             document.getElementById('metric-devices').textContent = totalDispositivos;
         }
 
+        // SAIR
         document.getElementById('logout-btn').addEventListener('click', () => {
             localStorage.clear();
             location.reload();
         });
 
+        // CHECAR SESSÃO
         window.onload = () => {
-            const salvo = localStorage.getItem('prestador_nome');
-            if (salvo) initDashboard(salvo);
+            const salvoNome = localStorage.getItem('prestador_nome');
+            const salvoPerm = localStorage.getItem('prestador_perm');
+            if (salvoNome) initDashboard(salvoNome, salvoPerm);
         };
     </script>
 </body>
