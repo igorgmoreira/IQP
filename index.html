@@ -27,7 +27,7 @@
     <nav class="bg-white shadow-md p-4 flex justify-between items-center">
         <h1 class="text-xl font-bold text-cobli-dark">Portal de Qualidade (IQP)</h1>
         <div class="flex items-center gap-4">
-            <span id="user-name-display" class="font-semibold text-gray-700">A carregar...</span>
+            <span id="user-name-display" class="font-semibold text-gray-700">Carregando...</span>
             <button onclick="fazerLogout()" class="text-sm text-cobli-red border border-cobli-red px-3 py-1 rounded hover:bg-red-50 transition">Sair</button>
         </div>
     </nav>
@@ -83,16 +83,16 @@
     </main>
 
     <script>
-        // Declarado apenas uma vez!
-        const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        // Mudamos o nome da variável para supabaseClient para evitar conflitos!
+        const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
         let perfilUsuario = null;
 
         window.onload = async () => {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await supabaseClient.auth.getSession();
                 if (!session) { window.location.href = 'login.html'; return; }
 
-                const { data: perfil, error: errorPerfil } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+                const { data: perfil, error: errorPerfil } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
                 
                 if (errorPerfil) throw new Error("Erro ao buscar perfil: " + errorPerfil.message);
                 
@@ -117,7 +117,7 @@
         document.getElementById('filtro-prestador').addEventListener('change', carregarDados);
 
         async function carregarListaPrestadores() {
-            const { data } = await supabase.from('profiles').select('nome_prestador').eq('permissao', 'prestador');
+            const { data } = await supabaseClient.from('profiles').select('nome_prestador').eq('permissao', 'prestador');
             if (data) {
                 const select = document.getElementById('filtro-prestador');
                 data.forEach(p => {
@@ -134,7 +134,7 @@
                 const prestador = document.getElementById('filtro-prestador').value;
                 
                 // Tabela iqp
-                let query = supabase.from('iqp').select('*');
+                let query = supabaseClient.from('iqp').select('*');
 
                 if (mes) {
                     const [ano, m] = mes.split('-');
@@ -212,7 +212,7 @@
             }
         }
 
-        async function fazerLogout() { await supabase.auth.signOut(); window.location.href = 'login.html'; }
+        async function fazerLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
     </script>
 </body>
 </html>
