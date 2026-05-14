@@ -3,282 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Índice de Qualidade do Prestador - Cobli</title>
+    <title>Portal IQP - Cobli</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root {
-            --cobli-primary-dark: #07074E;
-            --cobli-primary-light: #001BB8;
-            --cobli-secondary-red: #FF4633;
-            --cobli-secondary-green: #00AE97;
-        }
-        .bg-cobli-dark { background-color: var(--cobli-primary-dark); }
-        .text-cobli-dark { color: var(--cobli-primary-dark); }
-        .border-cobli-dark { border-color: var(--cobli-primary-dark); }
-        .text-cobli-light { color: var(--cobli-primary-light); }
-        .border-cobli-light { border-color: var(--cobli-primary-light); }
-        .text-cobli-red { color: var(--cobli-secondary-red); }
-        .text-cobli-green { color: var(--cobli-secondary-green); }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-800">
-
-    <div id="login-screen" class="min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-md w-96 border-t-4 border-cobli-dark">
-            <div class="flex flex-col items-center justify-center mb-8 gap-5 mt-2">
-                <img src="logotipo_slogan_indigo.png" alt="Cobli Logo" class="h-12">
-                <h2 class="text-lg font-semibold text-cobli-dark text-center tracking-tight">Índice de Qualidade do Prestador</h2>
-            </div>
-            
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">E-mail</label>
-                    <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-cobli-light">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Senha</label>
-                    <input type="password" id="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-cobli-light">
-                </div>
-                <button type="submit" id="btn-entrar" class="w-full py-2 px-4 rounded-md text-white bg-cobli-dark hover:opacity-90 transition font-medium">Entrar</button>
-                <p id="login-error" class="text-red-500 text-sm text-center hidden"></p>
-            </form>
-        </div>
-    </div>
-
-    <div id="dashboard-screen" class="hidden min-h-screen">
-        <header class="bg-cobli-dark text-white p-4">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <img src="logotipo_slogan_branco.png" alt="Cobli Logo" class="h-10">
-                <div class="flex items-center gap-6">
-                    <span id="welcome-msg" class="text-sm font-medium opacity-90"></span>
-                    <button id="logout-btn" class="text-cobli-red text-sm font-bold hover:underline">Sair</button>
-                </div>
-            </div>
-        </header>
-
-        <main class="max-w-7xl mx-auto p-8">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <h1 class="text-2xl font-bold text-cobli-dark">Índice de Qualidade do Prestador</h1>
-                
-                <div class="flex flex-wrap items-center gap-4">
-                    <div id="admin-controls" class="hidden flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-cobli-dark">
-                        <label class="text-sm font-semibold text-cobli-dark">Filtrar Prestador:</label>
-                        <select id="admin-filter" class="outline-none border-b-2 border-cobli-dark bg-transparent font-bold text-cobli-dark cursor-pointer">
-                            <option value="">Todos os Prestadores</option>
-                        </select>
-                    </div>
-                    <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                        <label class="text-sm font-semibold text-gray-600">Mês de Referência:</label>
-                        <input type="month" id="date-filter" class="outline-none border-b-2 border-cobli-light bg-transparent text-cobli-light font-bold cursor-pointer">
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-green">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Score Médio (IQP)</h3>
-                    <p id="metric-score" class="text-4xl font-bold text-cobli-green mt-2">--</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-red">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total de Ordens</h3>
-                    <p id="metric-os" class="text-4xl font-bold text-cobli-red mt-2">--</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-light">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Qtd. Dispositivos</h3>
-                    <p id="metric-devices" class="text-4xl font-bold text-cobli-light mt-2">--</p>
-                </div>
-            </div>
-
-            <div class="bg-white p-4 rounded-t-lg border-b border-gray-200 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
-                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Histórico de Ordens</h3>
-                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                    <input type="text" id="search-os" placeholder="Buscar por OS..." class="flex-1 md:w-64 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light">
-                    <select id="search-status" class="flex-1 md:w-48 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light capitalize">
-                        <option value="">Todos os Status</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-b-lg shadow border border-gray-200 overflow-hidden border-t-0">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">OS</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Data do Serviço</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Status</th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-cobli-dark uppercase">Dispositivos</th>
-                            <th class="px-6 py-3 text-right text-xs font-bold text-cobli-dark uppercase">Score</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
-                </table>
-                <div id="no-data-msg" class="p-16 text-center text-gray-400 hidden">Nenhum dado encontrado para este período ou filtros.</div>
-            </div>
-        </main>
-    </div>
-
-    <script src="config.js"></script>
+    <script src="config.js"></script> 
     <script>
-        const clienteSupabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-        let currentUserProfile = null;
-        let dadosGlobais = [];
-
-        const dateFilter = document.getElementById('date-filter');
-        const adminFilter = document.getElementById('admin-filter');
-        const searchOsInput = document.getElementById('search-os');
-        const searchStatusSelect = document.getElementById('search-status');
-
-        function setInitialDate() {
-            const now = new Date();
-            dateFilter.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cobli-green': '#00A859',
+                        'cobli-red': '#FF3B30',
+                        'cobli-dark': '#1A1A1A',
+                        'cobli-light': '#007AFF'
+                    }
+                }
+            }
         }
-        setInitialDate();
+    </script>
+</head>
+<body class="bg-gray-100 font-sans">
+    
+    <nav class="bg-white shadow-md p-4 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl font-bold text-cobli-dark">Portal de Qualidade (IQP)</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="user-name-display" class="font-semibold text-gray-700">A carregar...</span>
+            <button onclick="fazerLogout()" class="text-sm text-cobli-red border border-cobli-red px-3 py-1 rounded hover:bg-red-50 transition">Sair</button>
+        </div>
+    </nav>
 
-        // --- VERIFICAÇÃO DE SESSÃO AUTOMÁTICA AO CARREGAR A PÁGINA ---
-        window.onload = async () => {
-            const { data: { session } } = await clienteSupabase.auth.getSession();
-            if (session) {
-                carregarPerfilEIniciar(session.user.id);
-            }
-        };
-
-        // --- NOVO LOGIN USANDO SUPABASE AUTH ---
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-entrar');
-            btn.textContent = "Aguarde...";
+    <main class="max-w-7xl mx-auto p-6">
+        
+        <div class="bg-white p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4 items-end">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Mês</label>
+                <input type="month" id="filtro-mes" class="border border-gray-300 rounded p-2 focus:ring-cobli-green focus:border-cobli-green outline-none">
+            </div>
             
-            const { data, error } = await clienteSupabase.auth.signInWithPassword({
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
-            });
+            <div id="container-filtro-prestador" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Prestador (Visão Admin)</label>
+                <select id="filtro-prestador" class="border border-gray-300 rounded p-2 focus:ring-cobli-green focus:border-cobli-green min-w-[250px] outline-none">
+                    <option value="">Todos os Prestadores</option>
+                </select>
+            </div>
+        </div>
 
-            if (error) {
-                document.getElementById('login-error').textContent = "E-mail ou senha incorretos.";
-                document.getElementById('login-error').classList.remove('hidden');
-                btn.textContent = "Entrar";
-            } else {
-                carregarPerfilEIniciar(data.user.id);
-            }
-        });
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            
+            <div id="card-score" class="bg-white p-6 rounded-lg shadow border-l-4 border-gray-300 transition-colors duration-300">
+                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Score Médio (IQP)</h3>
+                <div class="flex items-center gap-3 mt-2">
+                    <p id="metric-score" class="text-4xl font-bold text-gray-400 transition-colors duration-300">--</p>
+                    
+                    <div id="medal-badge" class="hidden px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-sm transition-colors duration-300">
+                        <span id="medal-icon" class="text-lg"></span>
+                        <span id="medal-text"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-red">
+                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total de Ordens</h3>
+                <p id="metric-os" class="text-4xl font-bold text-cobli-red mt-2">--</p>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-light">
+                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Qtd. Dispositivos</h3>
+                <p id="metric-devices" class="text-4xl font-bold text-cobli-light mt-2">--</p>
+            </div>
+        </div>
 
-        // --- CARREGAR O PERFIL EXTRA DO USUÁRIO ---
-        async function carregarPerfilEIniciar(userId) {
-            const { data: profile, error } = await clienteSupabase
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .single();
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ordem de Serviço</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Dispositivos</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="bg-white divide-y divide-gray-200">
+                    </tbody>
+            </table>
+            
+            <div id="no-data-msg" class="p-8 text-center text-gray-500 hidden">
+                Nenhum dado encontrado para o período selecionado.
+            </div>
+        </div>
+    </main>
 
-            if (error || !profile) {
-                alert("Erro ao carregar perfil do usuário.");
+    <script>
+        // 1. Inicializa o Supabase
+        const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        let perfilUsuario = null;
+
+        // 2. Verifica Autenticação ao carregar
+        window.onload = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                window.location.href = 'login.html'; // Redireciona se não estiver logado
                 return;
             }
 
-            currentUserProfile = profile;
-            
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('dashboard-screen').classList.remove('hidden');
-            document.getElementById('welcome-msg').textContent = profile.permissao === 'admin' ? `Admin: ${profile.nome_prestador}` : `Olá, ${profile.nome_prestador}`;
-            
-            if (profile.permissao === 'admin') {
-                document.getElementById('admin-controls').classList.remove('hidden');
-                carregarListaPrestadores();
+            // Puxa o perfil do banco de dados para saber se é admin ou prestador
+            const { data: perfil, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+            if (perfil) {
+                perfilUsuario = perfil;
+                document.getElementById('user-name-display').textContent = perfil.nome_prestador;
+
+                // Se for Admin, mostra o filtro e carrega a lista de prestadores
+                if (perfil.permissao === 'admin') {
+                    document.getElementById('container-filtro-prestador').classList.remove('hidden');
+                    carregarListaPrestadores();
+                }
+
+                // Define o mês atual por defeito e carrega os dados
+                const hoje = new Date();
+                const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+                document.getElementById('filtro-mes').value = mesAtual;
+                
+                carregarDados();
             }
-            loadData();
+        };
+
+        // 3. Eventos dos Filtros (Atualiza quando muda o mês ou prestador)
+        document.getElementById('filtro-mes').addEventListener('change', carregarDados);
+        document.getElementById('filtro-prestador').addEventListener('change', carregarDados);
+
+        // 4. Carregar Dados Principais
+        async function carregarDados() {
+            const mesSelecionado = document.getElementById('filtro-mes').value;
+            const prestadorSelecionado = document.getElementById('filtro-prestador').value;
+
+            // Monta a Query (Agora com o nome exato da tabela: ordem_de_servico)
+            let query = supabase.from('ordem_de_servico').select('*');
+
+            // Filtra pelo mês se houver
+            if (mesSelecionado) {
+                const ano = mesSelecionado.split('-')[0];
+                const mes = mesSelecionado.split('-')[1];
+                query = query.gte('data_servico', `${ano}-${mes}-01`)
+                             .lt('data_servico', `${ano}-${String(parseInt(mes)+1).padStart(2, '0')}-01`); 
+            }
+
+            // Filtro de Segurança
+            if (perfilUsuario.permissao === 'prestador') {
+                query = query.eq('nome_prestador', perfilUsuario.nome_prestador);
+            } else if (perfilUsuario.permissao === 'admin' && prestadorSelecionado) {
+                query = query.eq('nome_prestador', prestadorSelecionado);
+            }
+
+            const { data, error } = await query;
+            
+            if (error) {
+                console.error("Erro a buscar dados:", error);
+                return;
+            }
+
+            renderDashboard(data || []);
         }
 
+        // 5. Carregar Lista de Prestadores (Apenas Admin)
         async function carregarListaPrestadores() {
-            const { data } = await clienteSupabase
-                .from('profiles')
-                .select('nome_prestador')
-                .eq('permissao', 'prestador')
-                .order('nome_prestador', { ascending: true });
-
+            const { data, error } = await supabase.from('profiles').select('nome_prestador').eq('permissao', 'prestador');
             if (data) {
-                const nomes = [...new Set(data.map(u => u.nome_prestador).filter(Boolean))];
-                nomes.forEach(nomeLista => {
+                const select = document.getElementById('filtro-prestador');
+                data.forEach(p => {
                     const option = document.createElement('option');
-                    option.value = nomeLista;
-                    option.textContent = nomeLista;
-                    adminFilter.appendChild(option);
+                    option.value = p.nome_prestador;
+                    option.textContent = p.nome_prestador;
+                    select.appendChild(option);
                 });
             }
         }
 
-        dateFilter.addEventListener('change', loadData);
-        adminFilter.addEventListener('change', loadData);
-        searchOsInput.addEventListener('input', aplicarFiltrosTabela);
-        searchStatusSelect.addEventListener('change', aplicarFiltrosTabela);
-
-        // --- BUSCA NO BANCO (AGORA PROTEGIDA PELO RLS) ---
-        async function loadData() {
-            if (!currentUserProfile) return;
-
-            const [year, month] = dateFilter.value.split('-').map(Number);
-            const primeiroDia = `${year}-${String(month).padStart(2, '0')}-01`;
-            const proximoMes = month === 12 ? 1 : month + 1;
-            const anoDoProximoMes = month === 12 ? year + 1 : year;
-            const limiteSuperior = `${anoDoProximoMes}-${String(proximoMes).padStart(2, '0')}-01`;
-            
-            // A MAGICA ACONTECE AQUI: Não precisamos mais do .eq('prestador', nome) no código!
-            // O banco de dados (RLS) já sabe quem é o usuário e só devolve os dados permitidos.
-            let query = clienteSupabase.from('iqp').select('*')
-                .gte('data_servico', primeiroDia)
-                .lt('data_servico', limiteSuperior)
-                .order('data_servico', { ascending: false });
-
-            // Só o admin precisa aplicar um filtro adicional se quiser ver um prestador específico
-            if (currentUserProfile.permissao === 'admin') {
-                const prestadorEscolhido = adminFilter.value;
-                if (prestadorEscolhido !== "") query = query.eq('prestador', prestadorEscolhido);
-            }
-
-            const { data, error } = await query;
-            if (error) console.error(error);
-            
-            dadosGlobais = data || []; 
-            searchOsInput.value = '';
-            atualizarDropdownStatus(dadosGlobais);
-            aplicarFiltrosTabela(); 
-        }
-
-        function atualizarDropdownStatus(dados) {
-            const valorAtual = searchStatusSelect.value;
-            searchStatusSelect.innerHTML = '<option value="">Todos os Status</option>';
-            const statusUnicos = [...new Set(dados.map(item => (item.status || '-').toLowerCase()))].filter(Boolean);
-            statusUnicos.forEach(status => {
-                const option = document.createElement('option');
-                option.value = status;
-                option.textContent = status;
-                searchStatusSelect.appendChild(option);
-            });
-            if (statusUnicos.includes(valorAtual)) searchStatusSelect.value = valorAtual;
-        }
-
-        function aplicarFiltrosTabela() {
-            const termoOs = searchOsInput.value.toLowerCase().trim();
-            const termoStatus = searchStatusSelect.value.toLowerCase();
-
-            const dadosFiltrados = dadosGlobais.filter(os => {
-                const matchOs = String(os.ordem_de_servico || '').toLowerCase().includes(termoOs);
-                const matchStatus = termoStatus === "" || String(os.status || '-').toLowerCase() === termoStatus;
-                return matchOs && matchStatus;
-            });
-
-            renderDashboard(dadosFiltrados);
-        }
-
+        // 6. Atualizar a Interface (Com a Gamificação / Medalhas)
         function renderDashboard(dados) {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
             
+            const cardScore = document.getElementById('card-score');
+            const metricScore = document.getElementById('metric-score');
+            const medalBadge = document.getElementById('medal-badge');
+            
             if (dados.length === 0) {
                 document.getElementById('no-data-msg').classList.remove('hidden');
-                document.getElementById('metric-score').textContent = "0%";
+                metricScore.textContent = "0%";
                 document.getElementById('metric-os').textContent = "0";
                 document.getElementById('metric-devices').textContent = "0";
+                
+                // Esconde a medalha se não houver dados
+                medalBadge.classList.add('hidden');
+                cardScore.className = "bg-white p-6 rounded-lg shadow border-l-4 border-gray-300 transition-colors duration-300";
+                metricScore.className = "text-4xl font-bold text-gray-400 transition-colors duration-300";
                 return;
             }
 
@@ -293,25 +220,58 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
                 tr.innerHTML = `
-                    <td class="px-6 py-4 text-sm font-semibold text-cobli-dark">${os.ordem_de_servico}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
+                    <td class="px-6 py-4 text-sm font-semibold text-cobli-dark">${os.ordem_de_servico || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${os.data_servico ? new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</td>
                     <td class="px-6 py-4 text-sm text-gray-600 capitalize">${os.status || '-'}</td>
-                    <td class="px-6 py-4 text-sm text-center text-gray-600">${os.qtd_dispositivos}</td>
+                    <td class="px-6 py-4 text-sm text-center text-gray-600">${os.qtd_dispositivos || 0}</td>
                     <td class="px-6 py-4 text-sm text-right font-bold ${nota >= 80 ? 'text-cobli-green' : 'text-cobli-red'}">${nota.toFixed(0)}%</td>
                 `;
                 tableBody.appendChild(tr);
             });
 
-            document.getElementById('metric-score').textContent = `${(somaNotas / dados.length).toFixed(0)}%`;
+            // Lógica das Medalhas do Score Médio
+            const media = somaNotas / dados.length;
+            const mediaArredondada = Math.round(media);
+            
+            metricScore.textContent = `${mediaArredondada}%`;
+            medalBadge.classList.remove('hidden');
+            cardScore.className = "bg-white p-6 rounded-lg shadow border-l-4 transition-colors duration-300";
+
+            if (mediaArredondada >= 95) {
+                document.getElementById('medal-icon').textContent = '💎';
+                document.getElementById('medal-text').textContent = 'Diamante';
+                medalBadge.className = 'px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-sm bg-cyan-100 text-cyan-700';
+                cardScore.classList.add('border-cyan-500');
+                metricScore.className = 'text-4xl font-bold text-cyan-600';
+            } else if (mediaArredondada >= 85) {
+                document.getElementById('medal-icon').textContent = '🥇';
+                document.getElementById('medal-text').textContent = 'Ouro';
+                medalBadge.className = 'px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-sm bg-yellow-100 text-yellow-700';
+                cardScore.classList.add('border-yellow-500');
+                metricScore.className = 'text-4xl font-bold text-yellow-600';
+            } else if (mediaArredondada >= 60) {
+                document.getElementById('medal-icon').textContent = '🥈';
+                document.getElementById('medal-text').textContent = 'Prata';
+                medalBadge.className = 'px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-sm bg-gray-200 text-gray-700';
+                cardScore.classList.add('border-gray-400');
+                metricScore.className = 'text-4xl font-bold text-gray-600';
+            } else {
+                document.getElementById('medal-icon').textContent = '🥉';
+                document.getElementById('medal-text').textContent = 'Bronze';
+                medalBadge.className = 'px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-sm bg-orange-100 text-orange-800';
+                cardScore.classList.add('border-orange-500');
+                metricScore.className = 'text-4xl font-bold text-orange-600';
+            }
+
             document.getElementById('metric-os').textContent = dados.length;
             document.getElementById('metric-devices').textContent = totalDispositivos;
         }
 
-        // --- LOGOUT OFICIAL DO SUPABASE ---
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await clienteSupabase.auth.signOut();
-            location.reload();
-        });
+        // 7. Logout
+        async function fazerLogout() {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
 </html>
