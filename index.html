@@ -83,6 +83,7 @@
     </main>
 
     <script>
+        // Declarado apenas uma vez!
         const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
         let perfilUsuario = null;
 
@@ -132,7 +133,7 @@
                 const mes = document.getElementById('filtro-mes').value;
                 const prestador = document.getElementById('filtro-prestador').value;
                 
-                // Tabela corrigida para "iqp"
+                // Tabela iqp
                 let query = supabase.from('iqp').select('*');
 
                 if (mes) {
