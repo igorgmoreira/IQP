@@ -32,9 +32,10 @@
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-md w-96 border-t-4 border-cobli-dark">
-            <div class="flex flex-col items-center justify-center mb-6 gap-3">
+            
+            <div class="flex flex-col items-center justify-center mb-8 gap-5 mt-2">
                 <img src="logotipo_slogan_indigo.png" alt="Cobli Logo" class="h-12">
-                <h2 class="text-lg font-semibold text-cobli-dark text-center uppercase tracking-tight">
+                <h2 class="text-lg font-semibold text-cobli-dark text-center tracking-tight">
                     Índice de Qualidade do Prestador
                 </h2>
             </div>
@@ -67,7 +68,7 @@
 
         <main class="max-w-7xl mx-auto p-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <h1 class="text-2xl font-bold text-cobli-dark uppercase">Índice de Qualidade do Prestador</h1>
+                <h1 class="text-2xl font-bold text-cobli-dark">Índice de Qualidade do Prestador</h1>
                 
                 <div class="flex flex-wrap items-center gap-4">
                     <div id="admin-controls" class="hidden flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-cobli-dark">
@@ -105,8 +106,9 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase tracking-wider">Ordem de Serviço (OS)</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase tracking-wider">Data do Serviço</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-center text-xs font-bold text-cobli-dark uppercase tracking-wider">Qtd. Dispositivos</th>
-                            <th class="px-6 py-3 text-right text-xs font-bold text-cobli-dark uppercase tracking-wider">Nota Individual</th>
+                            <th class="px-6 py-3 text-right text-xs font-bold text-cobli-dark uppercase tracking-wider">Score</th>
                         </tr>
                     </thead>
                     <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
@@ -185,6 +187,7 @@
 
             const [year, month] = dateFilter.value.split('-');
             
+            // A consulta já ordena nativamente pela data (mais recente primeiro)
             let query = clienteSupabase.from('iqp').select('*')
                 .gte('data_servico', `${year}-${month}-01`)
                 .lte('data_servico', `${year}-${month}-31`)
@@ -222,11 +225,15 @@
                 somaNotas += nota;
                 totalDispositivos += (parseInt(os.qtd_dispositivos) || 0);
 
+                // Garante que o status aparece, se a coluna se chamar exatamente "status"
+                const statusOs = os.status || '-';
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
                 tr.innerHTML = `
                     <td class="px-6 py-4 text-sm font-semibold text-cobli-dark">${os.ordem_de_servico}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">${new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 capitalize">${statusOs}</td>
                     <td class="px-6 py-4 text-sm text-center text-gray-600">${os.qtd_dispositivos}</td>
                     <td class="px-6 py-4 text-sm text-right font-bold ${nota >= 80 ? 'text-cobli-green' : 'text-cobli-red'}">${nota.toFixed(1)}%</td>
                 `;
