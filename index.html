@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Índice de Qualidade do Prestador - Cobli</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        /* Identidade Visual Cobli */
         :root {
             --cobli-primary-dark: #07074E;
             --cobli-primary-light: #001BB8;
@@ -23,33 +19,28 @@
         .text-cobli-light { color: var(--cobli-primary-light); }
         .border-cobli-light { border-color: var(--cobli-primary-light); }
         .text-cobli-red { color: var(--cobli-secondary-red); }
-        .border-cobli-red { border-color: var(--cobli-secondary-red); }
         .text-cobli-green { color: var(--cobli-secondary-green); }
-        .border-cobli-green { border-color: var(--cobli-secondary-green); }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-md w-96 border-t-4 border-cobli-dark">
-            
             <div class="flex flex-col items-center justify-center mb-8 gap-5 mt-2">
                 <img src="logotipo_slogan_indigo.png" alt="Cobli Logo" class="h-12">
-                <h2 class="text-lg font-semibold text-cobli-dark text-center tracking-tight">
-                    Índice de Qualidade do Prestador
-                </h2>
+                <h2 class="text-lg font-semibold text-cobli-dark text-center tracking-tight">Índice de Qualidade do Prestador</h2>
             </div>
             
             <form id="login-form" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">E-mail</label>
-                    <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cobli-light focus:border-cobli-light">
+                    <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-cobli-light">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Senha</label>
-                    <input type="password" id="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cobli-light focus:border-cobli-light">
+                    <input type="password" id="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-cobli-light">
                 </div>
-                <button type="submit" class="w-full py-2 px-4 rounded-md text-white bg-cobli-dark hover:opacity-90 transition font-medium">Entrar</button>
+                <button type="submit" id="btn-entrar" class="w-full py-2 px-4 rounded-md text-white bg-cobli-dark hover:opacity-90 transition font-medium">Entrar</button>
                 <p id="login-error" class="text-red-500 text-sm text-center hidden"></p>
             </form>
         </div>
@@ -77,7 +68,6 @@
                             <option value="">Todos os Prestadores</option>
                         </select>
                     </div>
-
                     <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
                         <label class="text-sm font-semibold text-gray-600">Mês de Referência:</label>
                         <input type="month" id="date-filter" class="outline-none border-b-2 border-cobli-light bg-transparent text-cobli-light font-bold cursor-pointer">
@@ -103,9 +93,8 @@
             <div class="bg-white p-4 rounded-t-lg border-b border-gray-200 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Histórico de Ordens</h3>
                 <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                    <input type="text" id="search-os" placeholder="Buscar por OS..." class="flex-1 md:w-64 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light focus:border-cobli-light">
-                    
-                    <select id="search-status" class="flex-1 md:w-48 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light focus:border-cobli-light capitalize">
+                    <input type="text" id="search-os" placeholder="Buscar por OS..." class="flex-1 md:w-64 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light">
+                    <select id="search-status" class="flex-1 md:w-48 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cobli-light capitalize">
                         <option value="">Todos os Status</option>
                     </select>
                 </div>
@@ -115,11 +104,11 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase tracking-wider">Ordem de Serviço (OS)</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase tracking-wider">Data do Serviço</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-cobli-dark uppercase tracking-wider">Qtd. Dispositivos</th>
-                            <th class="px-6 py-3 text-right text-xs font-bold text-cobli-dark uppercase tracking-wider">Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">OS</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Data do Serviço</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cobli-dark uppercase">Status</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-cobli-dark uppercase">Dispositivos</th>
+                            <th class="px-6 py-3 text-right text-xs font-bold text-cobli-dark uppercase">Score</th>
                         </tr>
                     </thead>
                     <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
@@ -132,12 +121,13 @@
     <script src="config.js"></script>
     <script>
         const clienteSupabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        let currentUserProfile = null;
+        let dadosGlobais = [];
+
         const dateFilter = document.getElementById('date-filter');
         const adminFilter = document.getElementById('admin-filter');
         const searchOsInput = document.getElementById('search-os');
         const searchStatusSelect = document.getElementById('search-status');
-
-        let dadosGlobais = [];
 
         function setInitialDate() {
             const now = new Date();
@@ -145,34 +135,54 @@
         }
         setInitialDate();
 
-        // --- LOGIN ---
+        // --- VERIFICAÇÃO DE SESSÃO AUTOMÁTICA AO CARREGAR A PÁGINA ---
+        window.onload = async () => {
+            const { data: { session } } = await clienteSupabase.auth.getSession();
+            if (session) {
+                carregarPerfilEIniciar(session.user.id);
+            }
+        };
+
+        // --- NOVO LOGIN USANDO SUPABASE AUTH ---
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const { data: user, error } = await clienteSupabase
-                .from(CONFIG.TABELA_USUARIOS)
-                .select('*')
-                .eq(CONFIG.COLUNA_EMAIL, document.getElementById('email').value)
-                .eq(CONFIG.COLUNA_SENHA, document.getElementById('password').value)
-                .single();
+            const btn = document.getElementById('btn-entrar');
+            btn.textContent = "Aguarde...";
+            
+            const { data, error } = await clienteSupabase.auth.signInWithPassword({
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            });
 
-            if (error || !user) {
+            if (error) {
                 document.getElementById('login-error').textContent = "E-mail ou senha incorretos.";
                 document.getElementById('login-error').classList.remove('hidden');
+                btn.textContent = "Entrar";
             } else {
-                const permissao = (user[CONFIG.COLUNA_PERMISSAO] || 'prestador').toLowerCase();
-                localStorage.setItem('prestador_nome', user[CONFIG.COLUNA_NOME_PRESTADOR]);
-                localStorage.setItem('prestador_perm', permissao);
-                initDashboard(user[CONFIG.COLUNA_NOME_PRESTADOR], permissao);
+                carregarPerfilEIniciar(data.user.id);
             }
         });
 
-        // --- DASHBOARD ---
-        function initDashboard(nome, permissao) {
+        // --- CARREGAR O PERFIL EXTRA DO USUÁRIO ---
+        async function carregarPerfilEIniciar(userId) {
+            const { data: profile, error } = await clienteSupabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (error || !profile) {
+                alert("Erro ao carregar perfil do usuário.");
+                return;
+            }
+
+            currentUserProfile = profile;
+            
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
-            document.getElementById('welcome-msg').textContent = permissao === 'admin' ? `Admin: ${nome}` : `Olá, ${nome}`;
+            document.getElementById('welcome-msg').textContent = profile.permissao === 'admin' ? `Admin: ${profile.nome_prestador}` : `Olá, ${profile.nome_prestador}`;
             
-            if (permissao === 'admin') {
+            if (profile.permissao === 'admin') {
                 document.getElementById('admin-controls').classList.remove('hidden');
                 carregarListaPrestadores();
             }
@@ -181,13 +191,13 @@
 
         async function carregarListaPrestadores() {
             const { data } = await clienteSupabase
-                .from(CONFIG.TABELA_USUARIOS)
-                .select(CONFIG.COLUNA_NOME_PRESTADOR)
-                .eq(CONFIG.COLUNA_PERMISSAO, 'prestador')
-                .order(CONFIG.COLUNA_NOME_PRESTADOR, { ascending: true });
+                .from('profiles')
+                .select('nome_prestador')
+                .eq('permissao', 'prestador')
+                .order('nome_prestador', { ascending: true });
 
             if (data) {
-                const nomes = [...new Set(data.map(u => u[CONFIG.COLUNA_NOME_PRESTADOR]).filter(Boolean))];
+                const nomes = [...new Set(data.map(u => u.nome_prestador).filter(Boolean))];
                 nomes.forEach(nomeLista => {
                     const option = document.createElement('option');
                     option.value = nomeLista;
@@ -202,34 +212,33 @@
         searchOsInput.addEventListener('input', aplicarFiltrosTabela);
         searchStatusSelect.addEventListener('change', aplicarFiltrosTabela);
 
-        // --- BUSCA NO BANCO ---
+        // --- BUSCA NO BANCO (AGORA PROTEGIDA PELO RLS) ---
         async function loadData() {
-            const nome = localStorage.getItem('prestador_nome');
-            const perm = localStorage.getItem('prestador_perm');
-            if (!nome) return;
+            if (!currentUserProfile) return;
 
-            // Lógica robusta de data para evitar problemas com meses de 28/30/31 dias
             const [year, month] = dateFilter.value.split('-').map(Number);
             const primeiroDia = `${year}-${String(month).padStart(2, '0')}-01`;
             const proximoMes = month === 12 ? 1 : month + 1;
             const anoDoProximoMes = month === 12 ? year + 1 : year;
             const limiteSuperior = `${anoDoProximoMes}-${String(proximoMes).padStart(2, '0')}-01`;
             
+            // A MAGICA ACONTECE AQUI: Não precisamos mais do .eq('prestador', nome) no código!
+            // O banco de dados (RLS) já sabe quem é o usuário e só devolve os dados permitidos.
             let query = clienteSupabase.from('iqp').select('*')
                 .gte('data_servico', primeiroDia)
                 .lt('data_servico', limiteSuperior)
                 .order('data_servico', { ascending: false });
 
-            if (perm === 'admin') {
+            // Só o admin precisa aplicar um filtro adicional se quiser ver um prestador específico
+            if (currentUserProfile.permissao === 'admin') {
                 const prestadorEscolhido = adminFilter.value;
                 if (prestadorEscolhido !== "") query = query.eq('prestador', prestadorEscolhido);
-            } else {
-                query = query.eq('prestador', nome);
             }
 
             const { data, error } = await query;
-            dadosGlobais = data || []; 
+            if (error) console.error(error);
             
+            dadosGlobais = data || []; 
             searchOsInput.value = '';
             atualizarDropdownStatus(dadosGlobais);
             aplicarFiltrosTabela(); 
@@ -298,16 +307,11 @@
             document.getElementById('metric-devices').textContent = totalDispositivos;
         }
 
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            localStorage.clear();
+        // --- LOGOUT OFICIAL DO SUPABASE ---
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await clienteSupabase.auth.signOut();
             location.reload();
         });
-
-        window.onload = () => {
-            const salvoNome = localStorage.getItem('prestador_nome');
-            const salvoPerm = localStorage.getItem('prestador_perm');
-            if (salvoNome) initDashboard(salvoNome, salvoPerm);
-        };
     </script>
 </body>
 </html>
