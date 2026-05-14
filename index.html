@@ -179,7 +179,8 @@
             let totalDispositivos = 0;
 
             dados.forEach(os => {
-                const nota = parseFloat(os.score) || 0;
+                // Multiplica por 100 para transformar 0.95 em 95
+                const nota = (parseFloat(os.score) || 0) * 100; 
                 somaNotas += nota;
                 totalDispositivos += (parseInt(os.qtd_dispositivos) || 0);
 
@@ -189,7 +190,7 @@
                     <td class="px-6 py-4 text-sm font-bold text-gray-700">${os.ordem_de_servico}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">${new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                     <td class="px-6 py-4 text-sm text-center text-gray-600">${os.qtd_dispositivos}</td>
-                    <td class="px-6 py-4 text-sm text-right font-bold ${nota >= 8 ? 'text-green-600' : 'text-orange-500'}">${nota.toFixed(2)}</td>
+                    <td class="px-6 py-4 text-sm text-right font-bold ${nota >= 80 ? 'text-green-600' : 'text-orange-500'}">${nota.toFixed(1)}%</td>
                 `;
                 tableBody.appendChild(tr);
             });
