@@ -52,7 +52,7 @@
                 <h3 class="text-gray-500 text-xs font-bold uppercase">Score Médio (IQP)</h3>
                 <div class="flex items-baseline gap-2 mt-2">
                     <p id="metric-score" class="text-4xl font-bold text-cobli-dark">--</p>
-                    <span id="medal-display" class="text-sm font-bold px-2 py-0.5 rounded"></span>
+                    <span id="medal-display" class="text-sm font-bold px-2 py-0.5 rounded hidden"></span>
                 </div>
             </div>
             <div class="bg-white p-6 rounded-lg shadow border-l-4 border-cobli-red">
@@ -83,7 +83,6 @@
     </main>
 
     <script>
-        // Mudamos o nome da variável para supabaseClient para evitar conflitos!
         const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
         let perfilUsuario = null;
 
@@ -133,7 +132,6 @@
                 const mes = document.getElementById('filtro-mes').value;
                 const prestador = document.getElementById('filtro-prestador').value;
                 
-                // Tabela iqp
                 let query = supabaseClient.from('iqp').select('*');
 
                 if (mes) {
@@ -163,15 +161,17 @@
             tableBody.innerHTML = '';
             const medalDisplay = document.getElementById('medal-display');
             
-            if (dados.length === 0) {
+            // TRAVA DE SEGURANÇA: Se não houver dados, para por aqui e não calcula nada!
+            if (!dados || dados.length === 0) {
                 document.getElementById('no-data-msg').classList.remove('hidden');
                 document.getElementById('metric-score').textContent = "0%";
                 document.getElementById('metric-os').textContent = "0";
                 document.getElementById('metric-devices').textContent = "0";
-                medalDisplay.classList.add('hidden');
+                medalDisplay.classList.add('hidden'); // Esconde a medalha
                 return;
             }
 
+            // Daqui para baixo, só executa se existirem dados reais
             document.getElementById('no-data-msg').classList.add('hidden');
             let somaNotas = 0, totalDevs = 0;
 
@@ -190,6 +190,7 @@
                 tableBody.appendChild(tr);
             });
 
+            // Calcula a média com segurança
             const media = Math.round(somaNotas / dados.length);
             document.getElementById('metric-score').textContent = `${media}%`;
             document.getElementById('metric-os').textContent = dados.length;
