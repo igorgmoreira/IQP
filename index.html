@@ -164,8 +164,14 @@
             loadData();
         }
 
+        // --- BUSCA APENAS QUEM É PRESTADOR PARA O FILTRO DO ADMIN ---
         async function carregarListaPrestadores() {
-            const { data } = await clienteSupabase.from(CONFIG.TABELA_USUARIOS).select(CONFIG.COLUNA_NOME_PRESTADOR);
+            const { data } = await clienteSupabase
+                .from(CONFIG.TABELA_USUARIOS)
+                .select(CONFIG.COLUNA_NOME_PRESTADOR)
+                .eq(CONFIG.COLUNA_PERMISSAO, 'prestador') // Filtro para não mostrar outros admins
+                .order(CONFIG.COLUNA_NOME_PRESTADOR, { ascending: true }); // Ordem alfabética
+
             if (data) {
                 const nomes = [...new Set(data.map(u => u[CONFIG.COLUNA_NOME_PRESTADOR]).filter(Boolean))];
                 nomes.forEach(nomeLista => {
@@ -187,7 +193,6 @@
 
             const [year, month] = dateFilter.value.split('-');
             
-            // A consulta já ordena nativamente pela data (mais recente primeiro)
             let query = clienteSupabase.from('iqp').select('*')
                 .gte('data_servico', `${year}-${month}-01`)
                 .lte('data_servico', `${year}-${month}-31`)
@@ -211,7 +216,7 @@
             
             if (dados.length === 0) {
                 document.getElementById('no-data-msg').classList.remove('hidden');
-                document.getElementById('metric-score').textContent = "0.0%";
+                document.getElementById('metric-score').textContent = "0%";
                 document.getElementById('metric-os').textContent = "0";
                 document.getElementById('metric-devices').textContent = "0";
                 return;
@@ -225,7 +230,6 @@
                 somaNotas += nota;
                 totalDispositivos += (parseInt(os.qtd_dispositivos) || 0);
 
-                // Garante que o status aparece, se a coluna se chamar exatamente "status"
                 const statusOs = os.status || '-';
 
                 const tr = document.createElement('tr');
@@ -235,12 +239,12 @@
                     <td class="px-6 py-4 text-sm text-gray-600">${new Date(os.data_servico).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                     <td class="px-6 py-4 text-sm text-gray-600 capitalize">${statusOs}</td>
                     <td class="px-6 py-4 text-sm text-center text-gray-600">${os.qtd_dispositivos}</td>
-                    <td class="px-6 py-4 text-sm text-right font-bold ${nota >= 80 ? 'text-cobli-green' : 'text-cobli-red'}">${nota.toFixed(1)}%</td>
+                    <td class="px-6 py-4 text-sm text-right font-bold ${nota >= 80 ? 'text-cobli-green' : 'text-cobli-red'}">${nota.toFixed(0)}%</td>
                 `;
                 tableBody.appendChild(tr);
             });
 
-            document.getElementById('metric-score').textContent = `${(somaNotas / dados.length).toFixed(1)}%`;
+            document.getElementById('metric-score').textContent = `${(somaNotas / dados.length).toFixed(0)}%`;
             document.getElementById('metric-os').textContent = dados.length;
             document.getElementById('metric-devices').textContent = totalDispositivos;
         }
