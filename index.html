@@ -27,7 +27,7 @@
     <nav class="bg-white shadow-md p-4 flex justify-between items-center">
         <h1 class="text-xl font-bold text-cobli-dark">Portal de Qualidade (IQP)</h1>
         <div class="flex items-center gap-4">
-            <span id="user-name-display" class="font-semibold text-gray-700">Carregando...</span>
+            <span id="user-name-display" class="font-semibold text-gray-700">A carregar...</span>
             <button onclick="fazerLogout()" class="text-sm text-cobli-red border border-cobli-red px-3 py-1 rounded hover:bg-red-50 transition">Sair</button>
         </div>
     </nav>
@@ -87,20 +87,28 @@
         let perfilUsuario = null;
 
         window.onload = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) { window.location.href = 'login.html'; return; }
 
-            const { data: perfil } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-            if (perfil) {
-                perfilUsuario = perfil;
-                document.getElementById('user-name-display').textContent = perfil.nome_prestador;
-                if (perfil.permissao === 'admin') {
-                    document.getElementById('container-filtro-prestador').classList.remove('hidden');
-                    carregarListaPrestadores();
+                const { data: perfil, error: errorPerfil } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+                
+                if (errorPerfil) throw new Error("Erro ao buscar perfil: " + errorPerfil.message);
+                
+                if (perfil) {
+                    perfilUsuario = perfil;
+                    document.getElementById('user-name-display').textContent = perfil.nome_prestador;
+                    if (perfil.permissao === 'admin') {
+                        document.getElementById('container-filtro-prestador').classList.remove('hidden');
+                        carregarListaPrestadores();
+                    }
+                    const hoje = new Date();
+                    document.getElementById('filtro-mes').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+                    carregarDados();
                 }
-                const hoje = new Date();
-                document.getElementById('filtro-mes').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
-                carregarDados();
+            } catch (err) {
+                console.error(err);
+                alert("Falha ao iniciar o portal: " + err.message);
             }
         };
 
@@ -120,23 +128,33 @@
         }
 
         async function carregarDados() {
-            const mes = document.getElementById('filtro-mes').value;
-            const prestador = document.getElementById('filtro-prestador').value;
-            let query = supabase.from('ordem_de_servico').select('*');
+            try {
+                const mes = document.getElementById('filtro-mes').value;
+                const prestador = document.getElementById('filtro-prestador').value;
+                
+                // Tabela corrigida para "iqp"
+                let query = supabase.from('iqp').select('*');
 
-            if (mes) {
-                const [ano, m] = mes.split('-');
-                query = query.gte('data_servico', `${ano}-${m}-01`).lt('data_servico', `${ano}-${String(parseInt(m)+1).padStart(2, '0')}-01`);
+                if (mes) {
+                    const [ano, m] = mes.split('-');
+                    query = query.gte('data_servico', `${ano}-${m}-01`).lt('data_servico', `${ano}-${String(parseInt(m)+1).padStart(2, '0')}-01`);
+                }
+
+                if (perfilUsuario.permissao === 'prestador') {
+                    query = query.eq('nome_prestador', perfilUsuario.nome_prestador);
+                } else if (prestador) {
+                    query = query.eq('nome_prestador', prestador);
+                }
+
+                const { data, error } = await query;
+                
+                if (error) throw new Error("Erro na tabela: " + error.message);
+                
+                renderDashboard(data || []);
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao carregar os dados: " + err.message);
             }
-
-            if (perfilUsuario.permissao === 'prestador') {
-                query = query.eq('nome_prestador', perfilUsuario.nome_prestador);
-            } else if (prestador) {
-                query = query.eq('nome_prestador', prestador);
-            }
-
-            const { data, error } = await query;
-            renderDashboard(data || []);
         }
 
         function renderDashboard(dados) {
@@ -176,7 +194,7 @@
             document.getElementById('metric-os').textContent = dados.length;
             document.getElementById('metric-devices').textContent = totalDevs;
 
-            // Lógica das Medalhas (Simples e Direta)
+            // Lógica das Medalhas
             medalDisplay.classList.remove('hidden');
             if (media >= 95) {
                 medalDisplay.textContent = "💎 Diamante";
