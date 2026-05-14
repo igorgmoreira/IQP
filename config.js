@@ -9,5 +9,8 @@ const CONFIG = {
     TABELA_USUARIOS: 'login_prestadores_iqp',
     COLUNA_EMAIL: 'email',
     COLUNA_SENHA: 'password',
-    COLUNA_NOME_PRESTADOR: 'prestador'
+    COLUNA_NOME_PRESTADOR: 'prestador',
+
+    // Permissão
+    COLUNA_PERMISSAO: 'perm' // Nome da coluna de admin/prestador
 };
